@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import PostList from "./component/PostList";
 
 import PostForm from "./component/UI/PostForm.jsx";
@@ -13,9 +13,24 @@ function App() {
   ]);
  
   const [selectedSort, setSelectedSort] = useState('');
+
   const [searchQery, setSearchQery] = useState('');
 
-  const sortedPost = [...posts].filter(post => post.title.toLowerCase().includes(searchQery.toLowerCase())) 
+
+  const sortedPost = useMemo(() => {
+    console.log('работает каждый раз')
+
+    if (!selectedSort) {
+      [...posts].filter(post => post.title.toLowerCase().includes(searchQery.toLowerCase()))
+    }
+    return posts;
+  }, [selectedSort, posts])
+
+
+  const sortedAndSearchedPosts = useMemo(() => {
+    return sortedPost.filter(post => post.title.toLowerCase().includes(searchQery.toLowerCase()))
+  }, [sortedPost, searchQery])
+
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
@@ -54,8 +69,8 @@ function App() {
       />
       </div>
 
-      {posts.length !== 0 
-        ? <PostList remove={removePost} posts={posts} title={"Posts list"} />
+      {sortedAndSearchedPosts.length !== 0 
+        ? <PostList remove={removePost} posts={sortedAndSearchedPosts} title={"Мои посты"} />
         : <div style={{textAlign: 'center'}}><h3>Постов не найдено!</h3></div>
     }
       
